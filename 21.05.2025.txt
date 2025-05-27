@@ -1,0 +1,84 @@
+create database wednesday;
+use wednesday;
+CREATE TABLE Worker (
+	WORKER_ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	FIRST_NAME CHAR(25),
+	LAST_NAME CHAR(25),
+	SALARY INT(15),
+	JOINING_DATE DATETIME,
+	DEPARTMENT CHAR(25)
+);
+
+INSERT INTO Worker 
+	(WORKER_ID, FIRST_NAME, LAST_NAME, SALARY, JOINING_DATE, DEPARTMENT) VALUES
+		(001, 'Monika', 'Arora', 100000, '14-02-20 09.00.00', 'HR'),
+		(002, 'Niharika', 'Verma', 80000, '14-06-11 09.00.00', 'Admin'),
+		(003, 'Vishal', 'Singhal', 300000, '14-02-20 09.00.00', 'HR'),
+		(004, 'Amitabh', 'Singh', 500000, '14-02-20 09.00.00', 'Admin'),
+		(005, 'Vivek', 'Bhati', 500000, '14-06-11 09.00.00', 'Admin'),
+		(006, 'Vipul', 'Diwan', 200000, '14-06-11 09.00.00', 'Account'),
+		(007, 'Satish', 'Kumar', 75000, '14-01-20 09.00.00', 'Account'),
+		(008, 'Geetika', 'Chauhan', 90000, '14-04-11 09.00.00', 'Admin');
+        
+select * from worker where salary between 100000 and 300000;
+select * from worker where salary not between 100000 and 300000;
+
+select * from worker where salary between 100000 and 300000 and department not in ('Account','Admin');
+
+select min(salary) from worker;
+select max(salary) from worker;
+select count(worker_id) from worker;
+select avg(salary) from worker;
+select sum(salary) from worker;
+
+CREATE TABLE Worker1 (
+	WORKER_ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	FIRST_NAME CHAR(25),
+	LAST_NAME CHAR(25),
+	SALARY INT(15),
+	JOINING_DATE DATETIME,
+	DEPARTMENT CHAR(25)
+);
+
+INSERT INTO Worker1 
+	(WORKER_ID, FIRST_NAME, LAST_NAME, SALARY, JOINING_DATE, DEPARTMENT) VALUES
+		(001, 'Monika', 'Arora', 100000, '14-02-20 09.00.00', 'HR'),
+		(002, 'Niharika', 'Verma', 80000, '14-06-11 09.00.00', 'Admin'),
+		(003, 'Vishal', 'Singhal', 300000, '14-02-20 09.00.00', 'HR'),
+		(004, 'Amitabh', 'Singh', 500000, '14-02-20 09.00.00', 'Admin'),
+		(005, 'Vivek', 'Bhati', 500000, '14-06-11 09.00.00', 'Admin'),
+		(006, 'Vipul', 'Diwan', 200000, '14-06-11 09.00.00', 'Account'),
+		(007, 'Satish', 'Kumar', 75000, '14-01-20 09.00.00', 'Account'),
+		(008, 'Geetika', 'Chauhan', 90000, '14-04-11 09.00.00', 'Admin');
+        
+select distinct(department) from worker;
+select department from worker union select department from worker1;
+select department from worker union all select department from worker1;
+
+select department from worker where salary>200000 union select department from worker1 where salary>200000;
+
+select first_name, salary, 
+case
+	when salary>300000 then 'Rich people'
+    when salary>100000 and salary<=300000 then 'Middle class people'
+    when salary>10000 and salary<=100000 then 'Poor people'
+    else 'Data not found'
+end
+as status_check
+from worker;
+
+select * from worker where salary<=200000 order by salary desc;
+select first_name,last_name from worker order by first_name desc,last_name asc;
+
+select * from worker where first_name like '%a';
+select * from worker where first_name like '_i%a';
+select * from worker where first_name like '___t%';
+select * from worker where first_name like '_i%l';
+select * from worker where first_name like '_a%';
+
+create view admin_team as select * from worker where department='Admin' and salary<200000;
+create view hr_team as select * from worker where department='HR' and salary<200000;
+create view account_team as select * from worker where department='Account' and salary<200000;
+create or replace view admin_team_status as select * from worker where department='Admin' and salary<200000;
+drop view admin_team;
+select * from admin_team_status;
