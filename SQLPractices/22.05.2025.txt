@@ -1,0 +1,40 @@
+use wednesday;
+
+select * from worker;
+select department,count(department) from worker group by department;
+select department,count(department) from worker group by department order by count(department) desc limit 1;
+select department,sum(salary) from worker group by department order by sum(salary) desc limit 1;
+select department,count(department) from worker group by department having count(department)>3;
+select department,sum(salary) from worker group by department order by sum(salary) desc limit 1 offset 1;
+select first_name,department from worker where salary=(select max(salary) from worker);
+
+select first_name, department from worker where salary>(select avg(salary) from worker);
+
+select first_name,joining_date from worker where joining_date>(select min(joining_date) from worker where department='Admin');
+
+create table Student(
+s_id int,
+s_name varchar(30));
+
+insert into Student values (101,'Soha'),(102,'Sneha'),(103,'Maya'),(104,'Shanaya'),(105,'Yash'),(106,'Chetna');
+
+create table address(
+s_id int,
+s_address varchar(30));
+
+insert into address values (101,'Coimbatore'),(104,'Chennai'),(105,'Pune');
+
+select * from Student cross join address;
+
+select * from Student inner join address where Student.s_id=address.s_id;
+
+select * from Student left outer join address on (Student.s_id=address.s_id);
+
+select * from Student right outer join address on (Student.s_id=address.s_id);
+
+SELECT salary
+FROM (
+    SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rank1
+    FROM worker
+) ranked
+WHERE rank1 = 5;

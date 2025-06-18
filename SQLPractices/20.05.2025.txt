@@ -1,0 +1,51 @@
+create database tuesday;
+use tuesday;
+create table category(
+c_id int primary key,
+c_name varchar(40),
+c_details varchar(40));
+
+insert into category values(101,'electronics','xyzccsfff');
+insert into category values(102,'furniture','xxxxxxxxxxxx');
+select * from category;
+drop table products;
+create table products(
+p_id int primary key,
+p_name varchar(40),
+p_details varchar(40),
+c_id int,
+foreign key products(c_id) references category(c_id) on update cascade);
+
+insert into products values(501,'S_23 ultra','xxxxxxxxc',101);
+insert into products values(502,'Samsung A75','aaaaaaaa',101);
+
+select * from products;
+
+update category set c_id=105 where c_id=101; 
+
+alter table category add constraint uc_category unique (c_name);
+
+alter table category drop index uc_category;
+drop table orders;
+create table orders(
+o_id int primary key,
+o_name varchar(40),
+o_address varchar(40),
+p_id int,
+constraint fk_productsorders foreign key (p_id) references products(p_id));
+
+insert into orders values(1001,'Samsung A75','India',502);
+select * from orders;
+alter table orders drop foreign key fk_productsorders;
+alter table orders add check(p_id=501 or p_id=502);
+insert into orders values(1002,'iphone 15','Denmark',503);
+
+
+create table persons(
+id int primary key,
+f_name varchar(40),
+l_name varchar(40),
+country varchar(40) default 'India');
+
+insert into persons (id,f_name,l_name) values(201,'Aditi','Roy'); 
+select * from persons;
