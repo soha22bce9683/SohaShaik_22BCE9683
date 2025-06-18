@@ -1,0 +1,110 @@
+package connection;
+
+import java.io.PrintStream;
+import java.util.Arrays;
+
+import org.bson.Document;
+
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+
+public class Operations {
+	public static void main(String args[]){
+		// Creating a Mongo client 
+	    MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
+	    MongoDatabase database = mongoClient.getDatabase("vit");
+
+	    // Get the collection
+	    MongoCollection<Document> collection = database.getCollection("products");
+	    
+	  //  find the records having price greater than 700 and less than or equal to 900
+	    
+	  //Select a particular document
+	    FindIterable<Document> documents = collection.find(Filters.and(
+	            Filters.gt("price", 700),
+	            Filters.lte("price", 900)
+	        ));
+	    
+        for (Document doc : documents) {
+                System.out.println("Remaining Document: " + doc);
+        }
+        
+        System.out.println("*********************");
+        // OR
+        
+        Document priceRangeQuery = new Document("price", new Document("$gte", 700).append("$lte", 900));
+        FindIterable<Document> product = collection.find(priceRangeQuery);
+        for (Document doc : product) {
+            System.out.println("Remaining Document: " + doc);
+    }
+        
+        
+        // Find the average of prices of all the products.
+        
+        int totalPrice = 0;
+        int count = 0 ;
+
+        for (Document doc : collection.find()) {
+            Integer price = doc.getInteger("price");
+            if (price != null) {
+                totalPrice += price;
+                count ++ ;
+            }
+        }
+
+        System.out.println("Average Price: " + totalPrice/count);
+        
+        // OR
+        
+     // Build aggregation pipeline
+        AggregateIterable<Document> result = collection.aggregate(Arrays.asList(
+            new Document("$group", new Document("_id", null)
+                .append("averagePrice", new Document("$avg", "$price")))
+        ));
+
+        // Print result
+        for (Document doc : result) {
+            System.out.println("Average Price: " + doc.getDouble("averagePrice"));
+        }
+        
+        
+     // Get the product details having maximum price for each item
+        collection = database.getCollection("sales");
+        
+        result = collection.aggregate(Arrays.asList(
+                new Document("$group", new Document("_id", "$item")
+                        .append("maxPrice", new Document("$max", "$price")))
+ //               new Document("$sort", new Document("maxPrice", -1)),
+ //               new Document("$limit", 1)
+            ));
+
+            // Step 4: Process and print the result
+            for (Document doc : result) {
+                System.out.println("Item: " + doc.getString("_id"));
+                System.out.println("Max Price: " + doc.get("maxPrice"));
+            }
+            
+            // OR
+            
+            MongoCollection<Document> sales = database.getCollection("sales");
+            
+            sales.aggregate(Arrays.asList(
+                group("$item", 
+                    max("maxPrice", "$price"),
+                    addToSet("sizes", "$size")
+                ),
+                sort(descending("maxPrice"))
+            )).forEach((Document doc) -> {
+                System.out.printf("%-10s: $%2d (Sizes: %s)%n",
+                    doc.getString("_id"),
+                    doc.getInteger("maxPrice"),
+                    doc.getList("sizes", String.class));
+            });
+
+	}
+}
